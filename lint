@@ -103,6 +103,10 @@ def llvm_executable(name: str):
     return first_executable([f"{name}-{LLVM_VERSION}", name])
 
 
+def qt_executable(name: str):
+    return first_executable([f"/usr/lib/qt6/bin/{name}", name])
+
+
 def main():
     tasks = {
         "clang-format": Formatter(
@@ -124,6 +128,18 @@ def main():
             ],
             ["{}"],
             ["--fix-errors", "--fix-notes", "{}"],
+        ),
+        "qmlformat": Formatter(
+            [".qml"],
+            [qt_executable("qmlformat")],
+            ["{}"],
+            ["-i", "{}"],
+        ),
+        "qmllint": Linter(
+            [".qml"],
+            [qt_executable("qmllint"), "-Ibuild/qml"],
+            ["{}"],
+            ["-f", "{}"],
         ),
         "black": Formatter(
             ["lint", ".py"],
