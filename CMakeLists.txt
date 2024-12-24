@@ -3,6 +3,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*\n")
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Release, RelWithDebInfo, Debug or None")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" CACHE PATH "")
+set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml" CACHE PATH "")
 
 set(cxx_flags_warnings "-Wall -Wextra -Wpedantic -Walloc-zero -Wcast-qual -Wdate-time -Wduplicated-branches -Wduplicated-cond -Wformat=2 -Wmismatched-tags -Wredundant-tags -Wmissing-declarations -Wunused-macros")
 set(cxx_flags_base "${cxx_flags_warnings} -march=x86-64-v2 -ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
@@ -32,5 +33,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 include_directories("src")
+
+add_subdirectory("src/utils")
 
 add_subdirectory("src/ui")
