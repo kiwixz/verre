@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+
+import argparse
+import concurrent.futures
+import difflib
+import functools
+import math
+import multiprocessing
+import os
+import shutil
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Optional
+
+LLVM_VERSION = 19
+
+
+class Linter:
+    def __init__(
+        self,
+        files: list[str],
+        cmd: list[str],
+        check_params: Optional[list[str]] = None,
+        fix_params: Optional[list[str]] = None,
+    ):
+        self.files = files
+        self.cmd = cmd
+        self.check_params = check_params
+        self.fix_params = fix_params
+
+    def check(self, path: Path):
+        return self._run([arg.format(path) for arg in self.cmd + (self.check_params or [])])
+
+    def fix(self, path: Path):
+        return self._run([arg.format(path) for arg in self.cmd + (self.fix_params or [])])
+
+    def match(self, path: Path):
+        return str(path) in self.files or path.suffix in self.files
+
+    def _run(self, cmd: list[str]):
+        r = subprocess.run(
+            cmd,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        return None if r.returncode == 0 else r.stdout
+
+
+class Formatter(Linter):
+    def check(self, path: Path):
+        with open(path, encoding="utf8") as f:
+            original = f.read()
+        r = subprocess.run(
+            [arg.format(path) for arg in self.cmd + (self.check_params or [])],
+            check=False,
+            text=True,
+            input=original,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        if r.returncode != 0:
+            return r.stdout
+
+        patch = list(difflib.unified_diff(original.splitlines(), r.stdout.splitlines()))[2:]
+        if not patch:
+            return None
+
+        def colorize(line):
+            if line[0] == "+":
+                return f"\033[32m{line}\033[0m"
+            elif line[0] == "-":
+                return f"\033[31m{line}\033[0m"
+            else:
+                return line
+
+        return "".join(f"{colorize(line)}\n" for line in patch)
+
+
+def parallelism():
+    try:
+        return len(os.sched_getaffinity(0))
+    except AttributeError:
+        pass
+    return multiprocessing.cpu_count()
+
+
+def print_error(msg: str):
+    print(f"\033[31;1m{msg}\033[0m")
+
+
+def first_executable(names: list[str]):
+    for name in names[:-1]:
+        if shutil.which(name):
+            return name
+    return names[-1]
+
+
+def llvm_executable(name: str):
+    return first_executable([f"{name}-{LLVM_VERSION}", name])
+
+
+def main():
+    tasks = {
+        "clang-format": Formatter(
+            [".cpp", ".hpp"],
+            [llvm_executable("clang-format")],
+            ["-assume-filename", "{}"],
+            ["-i", "{}"],
+        ),
+        "clang-tidy": Linter(
+            [".cpp"],
+            [
+                llvm_executable("clang-tidy"),
+                "--quiet",
+                "--use-color",
+                "--warnings-as-errors=*",
+                "--extra-arg=-Wno-unknown-warning-option",
+                "--extra-arg=-Wno-deprecated-ofast",
+                "-p=build",
+            ],
+            ["{}"],
+            ["--fix-errors", "--fix-notes", "{}"],
+        ),
+        "black": Formatter(
+            ["lint", ".py"],
+            ["black", "--quiet"],
+            ["-"],
+            ["{}"],
+        ),
+        "pylint": Linter(
+            ["lint", ".py"],
+            ["pylint", "--score=n", "{}"],
+        ),
+    }
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fix", "-f", action="store_true", help="attempt to fix the problems")
+    parser.add_argument("--threads", "-j", type=int, default=parallelism(), help="number of threads")
+    parser.add_argument("tasks", nargs="*", choices=(*tasks, []), default=[], help="tasks to run")
+    args = parser.parse_args()
+
+    files = (Path(f) for f in subprocess.check_output(["git", "ls-files"], text=True).splitlines())
+    files = [f for f in files if f.exists()]
+
+    todo = [
+        functools.partial(lambda f, t: (f, t, tasks[t].fix(f) if args.fix else tasks[t].check(f)), file, task)
+        for file in files
+        for task in args.tasks or tasks
+        if tasks[task].match(file)
+    ]
+
+    total = len(todo)
+    if total == 0:
+        return 0
+
+    total_digits = int(math.log10(total)) + 1
+
+    failed = 0
+    with ThreadPoolExecutor(args.threads) as executor:
+        done = 0
+        for future in concurrent.futures.as_completed(executor.submit(op) for op in todo):
+            done += 1
+            file, task, error = future.result()
+            if error is None:
+                print(f"[{done:{total_digits}}/{total}] passed {task}: {file}")
+            else:
+                failed += 1
+                print_error(f"[{done:{total_digits}}/{total}] FAILED {task}: {file}")
+                if error:
+                    print(error)
+            sys.stdout.flush()
+
+    if failed:
+        print_error(f"\n{failed} tasks failed")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

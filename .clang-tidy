@@ -1,0 +1,139 @@
+FormatStyle: file
+
+
+Checks: |
+  bugprone-*
+  cert-*
+  clang-analyzer-*
+  concurrency-*
+  cppcoreguidelines-*
+  hicpp-*
+  misc-*
+  modernize-*
+  performance-*
+  portability-*
+  readability-*
+
+  google-build-namespaces
+  google-default-arguments
+  google-global-names-in-headers
+  google-readability-casting
+  google-runtime-int
+
+  -bugprone-easily-swappable-parameters
+  -bugprone-empty-catch
+  -bugprone-implicit-widening-of-multiplication-result
+  -bugprone-narrowing-conversions
+
+  -concurrency-mt-unsafe
+
+  -cppcoreguidelines-avoid-c-arrays
+  -cppcoreguidelines-avoid-magic-numbers
+  -cppcoreguidelines-avoid-non-const-global-variables
+  -cppcoreguidelines-avoid-reference-coroutine-parameters
+  -cppcoreguidelines-init-variables
+  -cppcoreguidelines-macro-usage
+  -cppcoreguidelines-narrowing-conversions
+  -cppcoreguidelines-no-malloc
+  -cppcoreguidelines-owning-memory
+  -cppcoreguidelines-prefer-member-initializer
+  -cppcoreguidelines-pro-*
+
+  -hicpp-explicit-conversions
+  -hicpp-signed-bitwise
+  -hicpp-uppercase-literal-suffix
+  -hicpp-use-auto
+
+  -misc-const-correctness
+  -misc-include-cleaner
+
+  -modernize-avoid-c-arrays
+  -modernize-use-auto
+  -modernize-use-nodiscard
+  -modernize-use-trailing-return-type
+
+  -readability-avoid-return-with-void-value
+  -readability-convert-member-functions-to-static
+  -readability-else-after-return
+  -readability-function-cognitive-complexity
+  -readability-identifier-length
+  -readability-implicit-bool-conversion
+  -readability-magic-numbers
+  -readability-make-member-function-const
+  -readability-qualified-auto
+  -readability-static-accessed-through-instance
+  -readability-uppercase-literal-suffix
+
+  # aliases
+  -bugprone-narrowing-conversions
+  -cert-con36-c
+  -cert-con54-cpp
+  -cert-ctr56-cpp
+  -cert-dcl03-c
+  -cert-dcl16-c
+  -cert-dcl37-c
+  -cert-dcl51-cpp
+  -cert-dcl54-cpp
+  -cert-dcl59-cpp
+  -cert-err09-cpp
+  -cert-err61-cpp
+  -cert-exp42-c
+  -cert-fio38-c
+  -cert-flp37-c
+  -cert-int09-c
+  -cert-msc24-c
+  -cert-msc30-c
+  -cert-msc32-c
+  -cert-msc33-c
+  -cert-msc54-cpp
+  -cert-oop11-cpp
+  -cert-oop54-cpp
+  -cert-pos44-c
+  -cert-pos47-c
+  -cert-sig30-c
+  -cert-str34-c
+  -cppcoreguidelines-avoid-c-arrays
+  -cppcoreguidelines-avoid-magic-numbers
+  -cppcoreguidelines-c-copy-assignment-signature
+  -cppcoreguidelines-explicit-virtual-functions
+  -cppcoreguidelines-macro-to-enum
+  -cppcoreguidelines-noexcept-destructor
+  -cppcoreguidelines-noexcept-move-operations
+  -cppcoreguidelines-noexcept-swap
+  -cppcoreguidelines-non-private-member-variables-in-classes
+  -cppcoreguidelines-use-default-member-init
+  -hicpp-avoid-c-arrays
+  -hicpp-avoid-goto
+  -hicpp-braces-around-statements
+  -hicpp-deprecated-headers
+  -hicpp-explicit-conversions
+  -hicpp-function-size
+  -hicpp-invalid-access-moved
+  -hicpp-member-init
+  -hicpp-move-const-arg
+  -hicpp-named-parameter
+  -hicpp-new-delete-operators
+  -hicpp-no-array-decay
+  -hicpp-no-malloc
+  -hicpp-noexcept-move
+  -hicpp-special-member-functions
+  -hicpp-static-assert
+  -hicpp-undelegated-constructor
+  -hicpp-uppercase-literal-suffix
+  -hicpp-use-auto
+  -hicpp-use-emplace
+  -hicpp-use-equals-default
+  -hicpp-use-equals-delete
+  -hicpp-use-noexcept
+  -hicpp-use-nullptr
+  -hicpp-use-override
+  -hicpp-vararg
+
+
+CheckOptions:
+  cppcoreguidelines-rvalue-reference-param-not-moved.AllowPartialMove: yes
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: yes
+  hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: yes
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: yes
+  performance-move-const-arg.CheckTriviallyCopyableMove: no
+  readability-braces-around-statements.ShortStatementLines: 2

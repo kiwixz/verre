@@ -1,0 +1,46 @@
+AccessModifierOffset: -4
+AlignTrailingComments: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+BraceWrapping:
+  AfterControlStatement: MultiLine
+  BeforeCatch: true
+  BeforeElse: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterComma
+BreakTemplateDeclarations: Yes
+ColumnLimit: 0
+ConstructorInitializerIndentWidth: 8
+ContinuationIndentWidth: 8
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: "^<[a-z_]+>$"
+    CaseSensitive: true
+    Priority: 100
+  - Regex: "^<[^>]+>$"
+    Priority: 200
+  - Regex: '^"[^"/]+/[^"]+"$'
+    Priority: 300
+    SortPriority: 310
+  - Regex: '^"[^"]+"$'
+    Priority: 300
+    SortPriority: 320
+IncludeIsMainSourceRegex: '\.cu$'
+IndentExternBlock: NoIndent
+IndentPPDirectives: AfterHash
+IndentRequiresClause: false
+IndentWidth: 4
+InsertNewlineAtEOF: true
+MaxEmptyLinesToKeep: 2
+PointerAlignment: Left
+PPIndentWidth: 2
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+RemoveSemicolon: true
+ShortNamespaceLines: 0
+SortIncludes: CaseInsensitive
+SpacesBeforeTrailingComments: 2
+SpacesInContainerLiterals: false
