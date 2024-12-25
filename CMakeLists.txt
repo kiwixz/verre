@@ -5,12 +5,11 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Release, RelWithDebInfo, Debug or N
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" CACHE PATH "")
 set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml" CACHE PATH "")
 
-set(cxx_flags_warnings "-Wall -Wextra -Wpedantic -Walloc-zero -Wcast-qual -Wdate-time -Wduplicated-branches -Wduplicated-cond -Wformat=2 -Wmismatched-tags -Wredundant-tags -Wmissing-declarations -Wunused-macros")
-set(cxx_flags_base "${cxx_flags_warnings} -march=x86-64-v2 -ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
+set(cxx_flags_base "-Wall -Wextra -Wpedantic -march=x86-64-v2 -ffast-math -ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
 set(cxx_flags_harden "-fstack-protector-strong -D_GLIBCXX_ASSERTIONS -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3")
 set(cxx_flags_sanitize "-fsanitize=address,undefined")
-set(CMAKE_CXX_FLAGS_RELEASE "${cxx_flags_base} -Ofast -flto=auto -DNDEBUG" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${cxx_flags_base} ${cxx_flags_harden} -Ofast -g3 -fno-omit-frame-pointer" CACHE STRING "")
+set(CMAKE_CXX_FLAGS_RELEASE "${cxx_flags_base} -O3 -flto=auto -DNDEBUG" CACHE STRING "")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${cxx_flags_base} ${cxx_flags_harden} -O3 -g3 -fno-omit-frame-pointer" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_DEBUG "${cxx_flags_base} ${cxx_flags_harden} ${cxx_flags_sanitize} -g3 -fno-omit-frame-pointer" CACHE STRING "")
 
 option(VCPKG "Install dependencies with vcpkg" ON)
