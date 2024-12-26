@@ -18,6 +18,8 @@ qt_add_qml_module(ui_
     RESOURCE_PREFIX "qt/qml"
     QML_FILES
         "main.qml"
+    DEPENDENCIES
+        QtQuick
 )
 
 add_executable(ui "main.cpp")

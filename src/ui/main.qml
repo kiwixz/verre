@@ -1,11 +1,11 @@
 import QtQuick
 import verre
 
-Rectangle {
-    color: "black"
+ImageItem {
+    image: Context.image
 
     Text {
-        text: Context.hello()
+        text: "Hello"
         color: "red"
     }
 }

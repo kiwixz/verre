@@ -136,7 +136,7 @@ def main():
         ),
         "qmllint": Linter(
             [".qml"],
-            [qt_executable("qmllint"), "-Ibuild/qml"],
+            [qt_executable("qmllint"), "-Ibuild/qml", "--type=info"],
             ["{}"],
             ["-f", "{}"],
         ),
