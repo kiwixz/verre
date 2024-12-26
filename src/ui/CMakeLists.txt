@@ -1,7 +1,7 @@
 find_package(fmt REQUIRED)
 find_package(Qt6 REQUIRED Quick)
 
-file(GLOB_RECURSE src "*.cpp")
+file(GLOB_RECURSE src "*.cpp" "*.hpp")
 list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 add_library(ui_ STATIC ${src})
 set_target_properties(ui_ PROPERTIES AUTOMOC ON)
