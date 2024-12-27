@@ -12,13 +12,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${cxx_flags_base} -O3 -DNDEBUG" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${cxx_flags_base} ${cxx_flags_harden} -O3 -g3 -fno-omit-frame-pointer" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_DEBUG "${cxx_flags_base} ${cxx_flags_harden} ${cxx_flags_sanitize} -g3 -fno-omit-frame-pointer" CACHE STRING "")
 
-option(VCPKG "Install dependencies with vcpkg" ON)
-if (VCPKG)
-    set(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics" CACHE STRING "")
-    set(VCPKG_INSTALL_OPTIONS "--no-print-usage" CACHE STRING "")
-    set(CMAKE_TOOLCHAIN_FILE "vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE FILEPATH "")
-endif ()
-
 project(verre CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
