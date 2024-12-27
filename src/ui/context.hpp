@@ -9,7 +9,6 @@
 namespace verre::ui {
 
 struct Context : QObject {
-public:
     Q_PROPERTY(verre::ui::opaque::QImage image MEMBER image_ NOTIFY imageChanged)
 
     Context();

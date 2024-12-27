@@ -11,7 +11,6 @@
 namespace verre::ui {
 
 struct ImageItem : QQuickItem {
-public:
     Q_PROPERTY(verre::ui::opaque::QImage image MEMBER image_ WRITE update_image REQUIRED)
 
     ImageItem();
