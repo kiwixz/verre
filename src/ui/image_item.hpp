@@ -6,11 +6,13 @@
 #include <QQuickItem>
 #include <QSGNode>
 
+#include "ui/opaque.hpp"  // IWYU pragma: keep
+
 namespace verre::ui {
 
 struct ImageItem : QQuickItem {
 public:
-    Q_PROPERTY(QImage image MEMBER image_ WRITE update_image REQUIRED)
+    Q_PROPERTY(verre::ui::opaque::QImage image MEMBER image_ WRITE update_image REQUIRED)
 
     ImageItem();
 
