@@ -25,6 +25,23 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+file(GLOB_RECURSE src RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*")
+file(GLOB src_root RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.py")
+foreach (file IN LISTS src src_root)
+    add_custom_command(OUTPUT "lint/${file}"
+        COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/lint.py" "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
+        COMMAND "${CMAKE_COMMAND}" -E touch "lint/${file}"
+        DEPENDS "lint.py" "${file}"
+        COMMENT "Linting ${file}"
+        VERBATIM
+    )
+    list(APPEND lint_commands "lint/${file}")
+endforeach ()
+add_custom_target(lint DEPENDS ${lint_commands})
+
+
 include_directories("src")
 
 add_subdirectory("src/utils")
