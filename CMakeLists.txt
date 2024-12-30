@@ -45,5 +45,6 @@ add_custom_target(lint DEPENDS ${lint_commands})
 include_directories("src")
 
 add_subdirectory("src/utils")
+add_subdirectory("src/core")
 
 add_subdirectory("src/ui")

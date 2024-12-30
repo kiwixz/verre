@@ -9,6 +9,7 @@ target_link_libraries(ui_ PUBLIC
     fmt::fmt
     Qt6::Quick
 
+    verre::core
     verre::utils
 )
 
