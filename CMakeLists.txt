@@ -43,6 +43,7 @@ add_custom_target(lint DEPENDS ${lint_commands})
 
 
 include_directories("src")
+add_compile_definitions(ACPP_ALLOW_INSTANT_SUBMISSION)
 
 add_subdirectory("src/utils")
 add_subdirectory("src/core")
