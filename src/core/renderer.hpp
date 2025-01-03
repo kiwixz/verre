@@ -34,9 +34,9 @@ private:
     sycl::queue queue_kernel_{sycl::property::queue::in_order{}};
     sycl::queue queue_copy_{sycl::property::queue::in_order{}};
     SyclBufferDevice<uint64_t> buffer_{queue_kernel_};
-    std::array<SyclBufferHost<uint64_t>, 3> host_buffers_ = {{{{}, queue_copy_},
-                                                              {{}, queue_copy_},
-                                                              {{}, queue_copy_}}};
+    std::array<SyclBufferHost<uint64_t>, 3> host_buffers_ = {{{{}, queue_kernel_},
+                                                              {{}, queue_kernel_},
+                                                              {{}, queue_kernel_}}};
     int last_host_buffer_ = 0;
 };
 

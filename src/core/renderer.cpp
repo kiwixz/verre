@@ -49,13 +49,14 @@ Renderer::Result Renderer::render() {
         std::span<uint64_t> buf = buffer_.device_span();
         uint64_t* pixels = buf.data();
 
-        handler.parallel_for(buf.size(), [pixels, rand](sycl::id<> id) {
+        handler.parallel_for(buf.size(), [pixels, rand](sycl::id<> id_) {
+            int id = id_;
             int x = id % 100;
             int y = id / 100;
 
             uint16_t r = rand;
-            uint16_t g = sycl::round(x / static_cast<double>(100 - 1) * std::numeric_limits<uint16_t>::max());
-            uint16_t b = sycl::round(y / static_cast<double>(100 - 1) * std::numeric_limits<uint16_t>::max());
+            uint16_t g = sycl::round(x / static_cast<float>(100 - 1) * std::numeric_limits<uint16_t>::max());
+            uint16_t b = sycl::round(y / static_cast<float>(100 - 1) * std::numeric_limits<uint16_t>::max());
             pixels[id] = static_cast<uint64_t>(b) << 32
                          | static_cast<uint64_t>(g) << 16
                          | r;
