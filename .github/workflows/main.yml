@@ -1,0 +1,49 @@
+name: main
+on: [push, pull_request]
+
+env:
+  CLICOLOR_FORCE: 1
+
+jobs:
+  main:
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [Release, RelWithDebInfo, Debug]
+    runs-on: ubuntu-latest
+    container: "debian:12"
+    steps:
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get -y install  \
+          black clang-format-19 clang-tidy-19 cmake g++ git ninja-build pylint python3  \
+          libfmt-dev qml6-module-qtquick qt6-declarative-dev  \
+          libboost-dev libboost-context-dev libboost-fiber-dev libclang-19-dev
+    - name: Setup AdaptiveCpp cache
+      id: cache-adaptivecpp
+      uses: actions/cache@v4
+      with:
+        key: AdaptiveCpp
+        path: /AdaptiveCpp
+    - name: Clone AdaptiveCpp
+      if: steps.cache-adaptivecpp.outputs.cache-hit != 'true'
+      run: git clone -b stable https://github.com/AdaptiveCpp/AdaptiveCpp /AdaptiveCpp
+    - name: Install AdaptiveCpp
+      working-directory: /AdaptiveCpp
+      run: |
+        git pull
+        git log -1
+        cmake -G Ninja -B build
+        ninja -C build install
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Configure
+      env:
+        CXX: acpp
+        CXXFLAGS: -isystem /usr/local/include/AdaptiveCpp
+      run: cmake -G Ninja -B build -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DCMAKE_BUILD_TYPE=${{matrix.buildtype}}
+    - name: Build
+      run: ninja -C build -k 0
+    - name: Lint
+      run: ninja -C build -k 0 lint
