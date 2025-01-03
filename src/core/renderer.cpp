@@ -28,8 +28,10 @@ Renderer::Renderer() {
     log::info("Rendering on {}", queue_kernel_.get_device().get_info<sycl::info::device::name>());
 
     size_t image_size = 100 * 100;
-    buffer_.resize(image_size);
-    for (SyclBufferHost<uint64_t>& buf : host_buffers_) {
+    for (SyclBufferDevice<uint64_t>& buf : pixels_) {
+        buf.resize(image_size);
+    }
+    for (SyclBufferHost<uint64_t>& buf : pixels_host_) {
         buf.resize(image_size);
     }
 }
@@ -39,17 +41,15 @@ Renderer::~Renderer() {
 }
 
 Renderer::Result Renderer::render() {
-    last_host_buffer_ = (last_host_buffer_ + 1) % host_buffers_.size();
-
-    SyclBufferHost<uint64_t>& host_buf = host_buffers_[last_host_buffer_];
+    int pixels_buffer = (last_pixels_buffer_ + 1) % pixels_.size();
 
     sycl::event kernel = queue_kernel_.submit([&](sycl::handler& handler) {
-        uint16_t rand = last_host_buffer_ / static_cast<double>(host_buffers_.size() - 1) * std::numeric_limits<uint16_t>::max();
+        uint16_t rand = pixels_buffer / static_cast<double>(pixels_.size() - 1) * std::numeric_limits<uint16_t>::max();
 
-        std::span<uint64_t> buf = buffer_.device_span();
-        uint64_t* pixels = buf.data();
+        // const uint64_t* last_pixels = pixels_[last_pixels_buffer_].device_data();
+        uint64_t* pixels = pixels_[pixels_buffer].device_data();
 
-        handler.parallel_for(buf.size(), [pixels, rand](sycl::id<> id_) {
+        handler.parallel_for(pixels_[pixels_buffer].size(), [pixels, rand](sycl::id<> id_) {
             int id = id_;
             int x = id % 100;
             int y = id / 100;
@@ -65,10 +65,14 @@ Renderer::Result Renderer::render() {
 
     sycl::event copy = queue_copy_.submit([&](sycl::handler& handler) {
         handler.depends_on(kernel);
-        handler.copy(buffer_.device_data(), host_buf.data(), buffer_.size());
+        handler.copy(pixels_[pixels_buffer].device_data(),
+                     pixels_host_[pixels_buffer].data(),
+                     pixels_[pixels_buffer].size());
     });
 
-    return {std::move(copy), host_buf};
+    last_pixels_buffer_ = pixels_buffer;
+
+    return {std::move(copy), pixels_host_[pixels_buffer]};
 }
 
 }  // namespace verre::core

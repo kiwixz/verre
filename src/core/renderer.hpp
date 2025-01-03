@@ -33,11 +33,9 @@ struct Renderer {
 private:
     sycl::queue queue_kernel_{sycl::property::queue::in_order{}};
     sycl::queue queue_copy_{sycl::property::queue::in_order{}};
-    SyclBufferDevice<uint64_t> buffer_{queue_kernel_};
-    std::array<SyclBufferHost<uint64_t>, 3> host_buffers_ = {{{{}, queue_kernel_},
-                                                              {{}, queue_kernel_},
-                                                              {{}, queue_kernel_}}};
-    int last_host_buffer_ = 0;
+    std::array<SyclBufferDevice<uint64_t>, 2> pixels_ = {{queue_kernel_, queue_kernel_}};
+    std::array<SyclBufferHost<uint64_t>, 2> pixels_host_ = {{{{}, queue_kernel_}, {{}, queue_kernel_}}};
+    int last_pixels_buffer_ = 0;
 };
 
 }  // namespace verre::core
