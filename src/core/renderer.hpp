@@ -33,8 +33,8 @@ struct Renderer {
 private:
     sycl::queue queue_kernel_{sycl::property::queue::in_order{}};
     sycl::queue queue_copy_{sycl::property::queue::in_order{}};
-    std::array<SyclBufferDevice<uint64_t>, 2> pixels_ = {{queue_kernel_, queue_kernel_}};
-    std::array<SyclBufferHost<uint64_t>, 2> pixels_host_ = {{{{}, queue_kernel_}, {{}, queue_kernel_}}};
+    std::array<SyclBufferDevice<uint64_t>, 2> pixels_;
+    std::array<SyclBufferHost<uint64_t>, 2> pixels_host_;
     int last_pixels_buffer_ = 0;
 };
 

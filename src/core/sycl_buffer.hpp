@@ -1,7 +1,6 @@
 #pragma once
 
 #include <span>
-#include <vector>
 
 #include <sycl/sycl.hpp>
 
@@ -9,31 +8,22 @@
 
 namespace verre::core {
 
-template <typename T>
-using SyclBufferHost = std::vector<T, sycl::usm_allocator<T, sycl::usm::alloc::host>>;
+template <typename T, sycl::usm::alloc kind>
+struct SyclBuffer {
+    SyclBuffer() = default;
 
-template <typename T>
-using SyclBufferShared = std::vector<T, sycl::usm_allocator<T, sycl::usm::alloc::shared>>;
-
-
-template <typename T>
-struct SyclBufferDevice {
-    SyclBufferDevice(const sycl::queue& queue) :
-            queue_{queue} {
-    }
-
-    ~SyclBufferDevice() {
+    ~SyclBuffer() {
         free();
     }
 
-    SyclBufferDevice(const SyclBufferDevice&) = delete;
-    SyclBufferDevice& operator=(const SyclBufferDevice&) = delete;
+    SyclBuffer(const SyclBuffer&) = delete;
+    SyclBuffer& operator=(const SyclBuffer&) = delete;
 
-    SyclBufferDevice(SyclBufferDevice&& other) noexcept {
+    SyclBuffer(SyclBuffer&& other) noexcept {
         *this = std::move(other);
     }
 
-    SyclBufferDevice& operator=(SyclBufferDevice&& other) noexcept {
+    SyclBuffer& operator=(SyclBuffer&& other) noexcept {
         free();
         ptr_ = other.ptr_;
         size_ = other.size_;
@@ -41,18 +31,32 @@ struct SyclBufferDevice {
         return *this;
     }
 
-    std::span<const T> device_span() const {
-        return {device_data(), size_};
+    operator std::span<const T>() const {
+        return span();
     }
-    std::span<T> device_span() {
-        return {device_data(), size_};
+    operator std::span<T>() {
+        return span();
     }
 
-    const T* device_data() const {
+    T& operator[](size_t i) const {
+        return span()[i];
+    }
+    T& operator[](size_t i) {
+        return span()[i];
+    }
+
+    std::span<const T> span() const {
+        return {data(), size_};
+    }
+    std::span<T> span() {
+        return {data(), size_};
+    }
+
+    const T* data() const {
         assume(size_ > 0);
         return ptr_;
     }
-    T* device_data() {
+    T* data() {
         assume(size_ > 0);
         return ptr_;
     }
@@ -61,24 +65,36 @@ struct SyclBufferDevice {
         return size_;
     }
 
-    void resize(size_t new_size) {
+    void resize(size_t new_size, sycl::queue& queue) {
         if (new_size == size_)
             return;
 
         free();
-        ptr_ = sycl::malloc_device<T>(new_size, queue_);
+        context_ = queue.get_context();
+        ptr_ = sycl::malloc<T>(new_size, queue, kind);
         size_ = new_size;
     }
 
 private:
-    sycl::queue queue_;
+    sycl::context context_;
     T* ptr_;
     size_t size_ = 0;
 
     void free() {
         if (size_ > 0)
-            sycl::free(ptr_, queue_);
+            sycl::free(ptr_, context_);
+        size_ = 0;
     }
 };
+
+
+template <typename T>
+using SyclBufferHost = SyclBuffer<T, sycl::usm::alloc::host>;
+
+template <typename T>
+using SyclBufferShared = SyclBuffer<T, sycl::usm::alloc::shared>;
+
+template <typename T>
+using SyclBufferDevice = SyclBuffer<T, sycl::usm::alloc::device>;
 
 }  // namespace verre::core

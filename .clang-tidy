@@ -34,6 +34,7 @@ Checks: |
   -cppcoreguidelines-avoid-reference-coroutine-parameters
   -cppcoreguidelines-init-variables
   -cppcoreguidelines-macro-usage
+  -cppcoreguidelines-missing-std-forward
   -cppcoreguidelines-narrowing-conversions
   -cppcoreguidelines-no-malloc
   -cppcoreguidelines-owning-memory

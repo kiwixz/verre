@@ -9,6 +9,7 @@
 #include <sycl/sycl.hpp>
 
 #include "core/sycl_buffer.hpp"
+#include "core/sycl_helpers.hpp"
 #include "utils/log.hpp"
 
 namespace verre::core {
@@ -29,11 +30,12 @@ Renderer::Renderer() {
 
     size_t image_size = 100 * 100;
     for (SyclBufferDevice<uint64_t>& buf : pixels_) {
-        buf.resize(image_size);
+        buf.resize(image_size, queue_kernel_);
     }
     for (SyclBufferHost<uint64_t>& buf : pixels_host_) {
-        buf.resize(image_size);
+        buf.resize(image_size, queue_kernel_);
     }
+    zero(pixels_[0].span(), queue_kernel_);
 }
 
 Renderer::~Renderer() {
@@ -44,17 +46,15 @@ Renderer::Result Renderer::render() {
     int pixels_buffer = (last_pixels_buffer_ + 1) % pixels_.size();
 
     sycl::event kernel = queue_kernel_.submit([&](sycl::handler& handler) {
-        uint16_t rand = pixels_buffer / static_cast<double>(pixels_.size() - 1) * std::numeric_limits<uint16_t>::max();
+        const uint64_t* last_pixels = pixels_[last_pixels_buffer_].data();
+        uint64_t* pixels = pixels_[pixels_buffer].data();
 
-        // const uint64_t* last_pixels = pixels_[last_pixels_buffer_].device_data();
-        uint64_t* pixels = pixels_[pixels_buffer].device_data();
-
-        handler.parallel_for(pixels_[pixels_buffer].size(), [pixels, rand](sycl::id<> id_) {
+        handler.parallel_for(pixels_[pixels_buffer].size(), [last_pixels, pixels](sycl::id<> id_) {
             int id = id_;
             int x = id % 100;
             int y = id / 100;
 
-            uint16_t r = rand;
+            uint16_t r = last_pixels[id] + 4096;
             uint16_t g = sycl::round(x / static_cast<float>(100 - 1) * std::numeric_limits<uint16_t>::max());
             uint16_t b = sycl::round(y / static_cast<float>(100 - 1) * std::numeric_limits<uint16_t>::max());
             pixels[id] = static_cast<uint64_t>(b) << 32
@@ -65,7 +65,7 @@ Renderer::Result Renderer::render() {
 
     sycl::event copy = queue_copy_.submit([&](sycl::handler& handler) {
         handler.depends_on(kernel);
-        handler.copy(pixels_[pixels_buffer].device_data(),
+        handler.copy(pixels_[pixels_buffer].data(),
                      pixels_host_[pixels_buffer].data(),
                      pixels_[pixels_buffer].size());
     });
