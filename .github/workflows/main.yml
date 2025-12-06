@@ -11,7 +11,7 @@ jobs:
       matrix:
         buildtype: [Release, RelWithDebInfo, Debug]
     runs-on: ubuntu-latest
-    container: "debian:12"
+    container: "debian:13"
     steps:
     - name: Install dependencies
       run: |
@@ -19,7 +19,7 @@ jobs:
         apt-get -y install  \
           black clang-format-19 clang-tidy-19 cmake g++ git ninja-build pylint python3  \
           libfmt-dev qml6-module-qtquick qt6-declarative-dev  \
-          libboost-dev libboost-context-dev libboost-fiber-dev libclang-19-dev
+          libboost-dev libboost-context-dev libboost-fiber-dev libclang-dev lld
     - name: Setup AdaptiveCpp cache
       id: cache-adaptivecpp
       uses: actions/cache@v4
